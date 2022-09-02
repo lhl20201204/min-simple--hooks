@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="container">
+
+    </div>
+
+
+    <script type="module">
+        document.getElementsByTagName('script')[0].innerHTML.split('\n').slice(9).map(v => {
+            const text = document.createElement('text')
+            text.innerHTML = v.replaceAll(' ', '&nbsp;')
+            container.appendChild(text)
+            container.appendChild(document.createElement('br'))
+        }
+        )
+        // ------------------
+        import { wrap, useState, useEffect, useRef } from "./index.js"
+
+        function useWindowSize() {
+            const [state, setState] = useState({
+                width: window.innerWidth,
+                height: window.innerHeight,
+            })
+
+            useEffect(() => {
+                const handle = () => {
+                    setState({
+                        width: window.innerWidth,
+                        height: window.innerHeight,
+                    })
+                }
+                window.addEventListener('resize', handle)
+                return () => {
+                    window.removeEventListener('resize', handle)
+                }
+            }, [])
+            return state
+        }
+
+        function comp2({ time, name, number }) {
+            console.log(name + ' render ')
+            const { width } = useWindowSize() // 请狠狠的拽你的浏览器宽度
+            const [count1, setCount1] = useState(20)
+            // Promise.resolve('promise4').then(console.log)
+            useEffect(() => {
+                console.log('监听到' + name + '变化', count1);
+                return () => {
+                    console.log('监听到' + name + '销毁', count1)
+                }
+            }, [count1])
+            // Promise.resolve('promise5').then(console.log)
+            useEffect(() => {
+                console.log(name + ' firstLayout')
+                setTimeout(() => {
+                    setCount1(200)
+                }, time)
+            }, [])
+
+            useEffect(() => {
+                console.log('width change', width)
+            }, [width])
+
+            useEffect(() => {
+                console.log(name + '从comp1接受到的' + number + '发生了变化')
+            }, [number])
+
+            // Promise.resolve('promise6').then(console.log)
+            console.log(name + ' end')
+        }
+
+        function comp1() {
+            console.log('comp1 render')
+            const [number, setNumber] = useState(1)
+            const store = useRef('initValue')
+            const [boolean, setBoolean] = useState(true)
+            useEffect(() => {
+                // console.log('render')
+                setNumber(number + 1)
+                setBoolean(false)
+                store.current = '1i3i402o3'
+                // for(let i = 0; i< 1000; i++) {
+                //     setNumber(x => x + i);
+                // }
+
+                setTimeout(() => {
+                    setNumber(561737829893)
+                }, 3000)
+                // setBoolean(true);
+                // setInterval(() => {
+                //     setNumber(n => n + 1)
+                // }, 3000)
+
+                // setTimeout(() => {
+                //     setBoolean(true)
+                // }, 6000)
+
+                // setTimeout(() => {
+                //     setNumber(67898900)
+                // }, 6000)
+
+            }, [])
+            // Promise.resolve('promise1').then(console.log)
+            useEffect(() => {
+                console.log('监听到number变化', number)
+                return () => {
+                    console.log("销毁number的effects", number)
+                }
+            }, [number])
+
+            // Promise.resolve('promise2').then(console.log)
+
+            useEffect(() => {
+                console.log('监听到boolean变化', boolean)
+                return () => {
+                    console.log("销毁boolean的effects", boolean)
+                }
+            }, [boolean])
+
+            wrap(comp2, { time: 5000, name: 'comp2', number })
+            // wrap(comp2, { time: 6000, name: 'comp3' })
+
+            // Promise.resolve('promise3').then(console.log)
+            console.log('comp1 end')
+
+        }
+
+        wrap(comp1)
+
+    </script>
+
+</body>
+
+</html>
